@@ -11,7 +11,7 @@ package shared;
 public class Client {
     private String username;
     private String password;
-    transient private static Boolean isLogged;
+    transient private Boolean isLogged = false;
     
     public Client(String username, String password){
         this.username = username;
@@ -35,12 +35,12 @@ public class Client {
         this.password = password;
     }
 
-    public static Boolean getIsLogged() {
+    public  Boolean getIsLogged() {
         return isLogged;
     }
 
-    public static void setIsLogged(Boolean isLogged) {
-        Client.isLogged = isLogged;
+    public void setIsLogged(Boolean isLogged) {
+        this.isLogged = isLogged;
     }
     
     

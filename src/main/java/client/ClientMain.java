@@ -7,7 +7,7 @@ package client;
  */
 public class ClientMain {
     public static void main(String[] args){
-        ClientCLI cli = ClientCLI.getInstance();
+        ClientCLI cli = new ClientCLI();
         cli.run();
     }
     

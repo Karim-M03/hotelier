@@ -1,7 +1,10 @@
 package client;
 
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
+
+import server.Exceptions.ClientSocketException;
 import shared.*;
 
 /**
@@ -10,21 +13,36 @@ import shared.*;
  */
 public class ClientCLI {
     
-    private static final ClientCLI Interface = new ClientCLI();
-    private static Client client;
-    private static ClientController cc;
-    private static Scanner input;
-    
-    private ClientCLI() {
+    private Client client;
+    private ClientController cc;
+    private Scanner input;
+    public ClientCLI() {
         this.input = new Scanner(System.in);
-        cc = new ClientController();
+        boolean connected = false;
+        while (!connected) {
+            try {
+                cc = new ClientController();
+                connected = true; // If no exception, connection is successful
+            } catch (ClientSocketException e) {
+                System.out.println("Can't connect to the server: " + e.getMessage());
+                System.out.println("Retry? (yes/no)");
+                String userResponse = input.nextLine();
+                if (!userResponse.equalsIgnoreCase("yes")) {
+                    System.out.println("Exiting application.");
+                    if (input != null) {
+                        input.close();
+                    }
+                    System.exit(1); // Exit the program if the user does not wish to retry
+                }
+            }
+        }
     }
+
             
-    public static ClientCLI getInstance() {
-        return Interface;
-    }
     
-    public static void run() {
+    
+    
+    public void run() {
         
         while (true) {
             if (client == null || !client.getIsLogged()) {
@@ -70,7 +88,7 @@ public class ClientCLI {
                     if (client == null || !client.getIsLogged()) {
                         login();
                     } else {
-                        login();
+                        searchAllHotels();
                     }
                     break;
                 case 3:
@@ -80,18 +98,18 @@ public class ClientCLI {
                         searchHotel();
                     }
                     break;
-                /*case 4:
+                case 4:
                     if (client == null || !client.getIsLogged()) {
                         searchAllHotels();
                     } else {
-                        showMyBadges();
+                        //showMyBadges();
                     }
                     break;
                 case 5:
                     if (client != null && client.getIsLogged()) {
-                        logout();
+                        //logout();
                     }
-                    break;*/
+                    break;
                 default:
                     System.out.println("Invalid command. Please try again.");
                     break;
@@ -99,7 +117,7 @@ public class ClientCLI {
         }
     }
     
-     private static void register() {
+     private void register() {
         System.out.print("-----------REGISTRATION----------\n");
         String username = "";
         String password = "";
@@ -130,7 +148,7 @@ public class ClientCLI {
         }
     }
      
-    private static void searchHotel(){
+    private void searchHotel(){
         System.out.print("-----------SEARCH HOTEL----------\n");
         String hotelName = "";
         String city = "";
@@ -152,16 +170,12 @@ public class ClientCLI {
         }
         
         Hotel hotel = cc.searchHotel(hotelName, city);
-        if(hotel == null){
-            System.out.print("No hotel found\n\n\n");
-        }else{
-            System.out.print(hotel.toString());
-        }
-        
-        
+        if(hotel != null) System.out.print(hotel.toString());
+       
+   
     }
     
-    private static void login(){
+    private void login(){
         System.out.print("-----------LOGIN----------\n");
         String username = "";
         String password = "";
@@ -181,8 +195,37 @@ public class ClientCLI {
                 System.out.println("Password cannot be empty. Please try again.");
             }
         }
+
+        Client client = cc.login(username, password);
+        if(client != null){
+            System.out.println("Login successfull");
+            this.client = client;
+        }
         
          
+    }
+
+
+    private void searchAllHotels(){
+        System.out.print("-----------SEARCH ALL HOTELS----------\n");
+        String city = "";
+
+        while (city.isEmpty()) {
+            System.out.print("Enter City: ");
+            city = input.nextLine();
+            if (city.isEmpty()) {
+                System.out.println("City cannot be empty. Please try again.");
+            }
+        }
+
+
+        List<Hotel> hotels = cc.searchAllHotels(city);
+        if(hotels != null){
+            for (Hotel hotel : hotels) {
+                System.out.println(hotel.toString());
+            }
+        }
+
     }
      
      

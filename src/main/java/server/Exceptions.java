@@ -80,5 +80,23 @@ public class Exceptions extends Exception {
         }
     }
 
-    // Additional custom exceptions can be added here
+    public static class ClientSocketException extends Exceptions {
+        public ClientSocketException() {
+            super();
+        }
+
+        public ClientSocketException(String message) {
+            super(message);
+        }
+
+        public ClientSocketException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public ClientSocketException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+   
 }

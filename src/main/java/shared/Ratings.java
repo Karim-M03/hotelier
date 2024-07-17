@@ -1,53 +1,74 @@
 package shared;
 
-    public class Ratings {
-        private int cleaning;
-        private int position;
-        private int services;
-        private int quality;
+import java.time.LocalDateTime;    
 
-        public Ratings(int cleaning, int position, int services, int quality) {
+public class Ratings {
+        private LocalDateTime creationDate;
+        private int level;
+        private float general;
+        private float cleaning;
+        private float position;
+        private float services;
+        private float quality;
+
+        public Ratings(float general, float cleaning, float position, float services, float quality, int level) {
+            this.level = level;
+            this.general = general;
             this.cleaning = cleaning;
             this.position = position;
             this.services = services;
             this.quality = quality;
+            this.creationDate = java.time.LocalDateTime.now();
         }
 
-        public int getCleaning() {
+        public float getGeneral() {
+            return general;
+        }
+
+        public void setGeneral(float general) {
+            this.general = general;
+        }
+
+        public float getCleaning() {
             return cleaning;
         }
 
-        public void setCleaning(int cleaning) {
+        public void setCleaning(float cleaning) {
             this.cleaning = cleaning;
         }
 
-        public int getPosition() {
+        public float getPosition() {
             return position;
         }
 
-        public void setPosition(int position) {
+        public void setPosition(float position) {
             this.position = position;
         }
 
-        public int getServices() {
+        public float getServices() {
             return services;
         }
 
-        public void setServices(int services) {
+        public void setServices(float services) {
             this.services = services;
         }
 
-        public int getQuality() {
+        public float getQuality() {
             return quality;
         }
 
-        public void setQuality(int quality) {
+        public void setQuality(float quality) {
             this.quality = quality;
+        }
+
+        public LocalDateTime getCreationDate(){
+            return creationDate;
         }
 
         @Override
         public String toString() {
             return "Ratings{" +
+                    "general=" + general +
                     "cleaning=" + cleaning +
                     ", position=" + position +
                     ", services=" + services +

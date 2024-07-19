@@ -3,7 +3,7 @@ package shared;
 import java.time.LocalDateTime;    
 
 public class Ratings {
-        private LocalDateTime creationDate;
+       
         private int level;
         private float general;
         private float cleaning;
@@ -18,7 +18,7 @@ public class Ratings {
             this.position = position;
             this.services = services;
             this.quality = quality;
-            this.creationDate = java.time.LocalDateTime.now();
+            
         }
 
         public float getGeneral() {
@@ -61,10 +61,7 @@ public class Ratings {
             this.quality = quality;
         }
 
-        public LocalDateTime getCreationDate(){
-            return creationDate;
-        }
-
+        
         @Override
         public String toString() {
             return "Ratings{" +

@@ -2,7 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import shared.*;
+import shared.Client;
+import shared.Exceptions;
+import shared.Hotel;
+import shared.Review;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -17,17 +20,26 @@ public class Storage {
     private static final String HOTEL_FILE_PATH = "./src/main/resources/Hotels.json";
     private static final String REVIEW_FILE_PATH = "./src/main/resources/Reviews.json";
 
-
     private static Map<String, Client> users = new HashMap<>();
     private static Map<String, Hotel> hotels = new HashMap<>();
     private static Map<Integer, Review> reviews = new HashMap<>();
 
+    static {
+        load();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                saveAll();
+            } catch (Exceptions.StorageException e) {
+                Logger.getLogger(Storage.class.getName()).log(Level.SEVERE, "Failed to save data on shutdown", e);
+            }
+        }));
+    }
 
     public static void load() {
         try {
             loadUsers();
             loadHotels();
-            loadReviews();
+            //loadReviews();
         } catch (Exceptions.StorageException ex) {
             Logger.getLogger(Storage.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -38,9 +50,7 @@ public class Storage {
             return false;
         }
         Client newUser = new Client(username, password);
-        System.out.println("Adding user: Username: " + username + ", Password: " + password);
         users.put(username, newUser);
-        saveUsers();
         return true;
     }
 
@@ -61,22 +71,8 @@ public class Storage {
             if (users == null) {
                 users = new HashMap<>();
             }
-
-            System.out.println("User loaded" + users.toString());
-            
-        } catch (FileNotFoundException e) {
-            throw new Exceptions.StorageException("User file not found", e);
         } catch (IOException e) {
             throw new Exceptions.StorageException("Error reading user file", e);
-        }
-    }
-
-    private static void saveUsers() throws Exceptions.StorageException {
-        try (Writer writer = new FileWriter(USER_FILE_PATH)) {
-            new Gson().toJson(users, writer);
-            System.out.println("Saved users: " + users);
-        } catch (IOException e) {
-            throw new Exceptions.StorageException("Error saving user file", e);
         }
     }
 
@@ -90,20 +86,65 @@ public class Storage {
         try (Reader reader = new FileReader(file)) {
             Type type = new TypeToken<List<Hotel>>() {}.getType();
             List<Hotel> hotelList = new Gson().fromJson(reader, type);
-            if (hotelList != null) {
-                for (Hotel hotel : hotelList) {
-                    hotels.put(hotel.getName(), hotel);
-                }
-            } else {
-                hotels = new HashMap<>();  // Ensuring hotels is not null even if the JSON is empty
-            }
-            
-        } catch (FileNotFoundException e) {
-            throw new Exceptions.StorageException("Hotel file not found", e);
+            if(hotelList != null)
+            hotelList.forEach(hotel -> hotels.put(hotel.getName(), hotel));
         } catch (IOException e) {
             throw new Exceptions.StorageException("Error reading hotel file", e);
         }
     }
+
+    private static void loadReviews() throws Exceptions.StorageException {
+        File file = new File(REVIEW_FILE_PATH);
+        if (!file.exists()) {
+            System.out.println("File does not exist: " + REVIEW_FILE_PATH);
+            return;
+        }
+
+        try (Reader reader = new FileReader(file)) {
+            Type type = new TypeToken<List<Review>>() {}.getType();
+            List<Review> reviewList = new Gson().fromJson(reader, type);
+            if(reviewList != null)
+            reviewList.forEach(review -> reviews.put(review.getHotelId(), review));
+        } catch (IOException e) {
+            throw new Exceptions.StorageException("Error reading review file", e);
+        }
+    }
+
+    public static void saveAll() throws Exceptions.StorageException {
+        saveUsers();
+        saveHotels();
+        saveReviews();
+    }
+
+    private static void saveUsers() throws Exceptions.StorageException {
+        try (Writer writer = new FileWriter(USER_FILE_PATH)) {
+            System.out.println("Saving users");
+            new Gson().toJson(users, writer);
+        } catch (IOException e) {
+            throw new Exceptions.StorageException("Error saving user file", e);
+        }
+    }
+
+    private static void saveHotels() throws Exceptions.StorageException {
+        try (Writer writer = new FileWriter(HOTEL_FILE_PATH)) {
+            System.out.println("Saving hotels");
+
+            new Gson().toJson(hotels.values(), writer);
+        } catch (IOException e) {
+            throw new Exceptions.StorageException("Error saving hotel file", e);
+        }
+    }
+
+    private static void saveReviews() throws Exceptions.StorageException {
+        try (Writer writer = new FileWriter(REVIEW_FILE_PATH)) {
+            System.out.println("Saving revies");
+            new Gson().toJson(reviews.values(), writer);
+        } catch (IOException e) {
+            throw new Exceptions.StorageException("Error saving review file", e);
+        }
+    }
+
+
 
     public static Map<String, Hotel> getHotels() throws Exceptions.StorageException {
         return new HashMap<>(hotels);  // Return a copy to prevent external modification
@@ -117,46 +158,5 @@ public class Storage {
         return new HashMap<>(reviews);  // Return a copy to prevent external modification
     }
 
-    public static void loadReviews() throws Exceptions.StorageException{
-        File file = new File(REVIEW_FILE_PATH);
-        if (!file.exists()) {
-            System.out.println("File does not exist: " + REVIEW_FILE_PATH);
-            return;
-        }
-
-        try (Reader reader = new FileReader(file)) {
-            Type type = new TypeToken<List<Review>>() {}.getType();
-            List<Review> reviewList = new Gson().fromJson(reader, type);
-            if (reviewList != null) {
-                for (Review review : reviewList) {
-                    reviews.put(review.getHotelId(), review);
-                }
-            } else {
-                hotels = new HashMap<>();  // Ensuring hotels is not null even if the JSON is empty
-            }
-            
-        } catch (FileNotFoundException e) {
-            throw new Exceptions.StorageException("Review file not found", e);
-        } catch (IOException e) {
-            throw new Exceptions.StorageException("Error reading review file", e);
-        }
-
-    }
-
-    private static void saveReviews() throws Exceptions.StorageException {
-        try (Writer writer = new FileWriter(REVIEW_FILE_PATH)) {
-            new Gson().toJson(reviews, writer);
-        } catch (IOException e) {
-            throw new Exceptions.StorageException("Error saving review file", e);
-        }
-    }
-
-    public static synchronized boolean addReview(Review review) throws Exceptions.StorageException {
-
-        reviews.put(review.getHotelId(), review);
-        saveUsers();
-        return true;
-    }
-
-   
+    
 }

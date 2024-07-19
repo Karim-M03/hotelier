@@ -20,7 +20,6 @@ public class ClientHandler implements Runnable {
 
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
-        Storage.load();
     }
 
     @Override
@@ -48,6 +47,7 @@ public class ClientHandler implements Runnable {
                         case "SEARCHALLHOTELS":
                             searchAllHotels(data, out);
                             break;
+                        
                         default:
                             out.println(new Gson().toJson(new Response<String>(false, 400, "Unknown command", null)));
                             break;
@@ -144,6 +144,7 @@ public class ClientHandler implements Runnable {
         }
         try {
             Map<String, Client> user = Storage.getClients();
+            System.out.println(user);
             Client foundUser = user.get(username);
             System.out.println("Login");
 
@@ -182,6 +183,5 @@ public class ClientHandler implements Runnable {
         }
     }
     
-
 
 }

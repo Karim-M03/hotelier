@@ -3,8 +3,6 @@ package client;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-
-import server.Exceptions.ClientSocketException;
 import shared.*;
 
 /**
@@ -13,9 +11,9 @@ import shared.*;
  */
 public class ClientCLI {
     
-    private Client client;
     private ClientController cc;
     private Scanner input;
+
     public ClientCLI() {
         this.input = new Scanner(System.in);
         boolean connected = false;
@@ -23,7 +21,7 @@ public class ClientCLI {
             try {
                 cc = new ClientController();
                 connected = true; // If no exception, connection is successful
-            } catch (ClientSocketException e) {
+            } catch (Exceptions.ClientSocketException e) {
                 System.out.println("Can't connect to the server: " + e.getMessage());
                 System.out.println("Retry? (yes/no)");
                 String userResponse = input.nextLine();
@@ -38,76 +36,80 @@ public class ClientCLI {
         }
     }
 
-            
-    
-    
-    
     public void run() {
-        
         while (true) {
-            if (client == null || !client.getIsLogged()) {
+            if (!cc.isClientLogged()) {
                 System.out.print("1 -> Register\n");
                 System.out.print("2 -> Login\n");
                 System.out.print("3 -> Search Hotel\n");
                 System.out.print("4 -> Search All Hotels\n");
+                System.out.print("5 -> Exit\n");
                 System.out.print("Insert command: ");
             } else {
-                System.out.print("Welcome " + client.getUsername() + " to HOTELIER, here listed you can find the possible operations\n");
+                System.out.print("Welcome " + cc.getClientUsername() + " to HOTELIER, here listed you can find the possible operations\n");
                 System.out.print("1 -> Search Hotel\n");
                 System.out.print("2 -> Search All Hotels\n");
                 System.out.print("3 -> Insert Review\n");
                 System.out.print("4 -> Show my Badges\n");
                 System.out.print("5 -> Logout\n");
+                System.out.print("6 -> Exit\n");
                 System.out.print("Insert command: ");
             }
+
             int cmd;
-            try{
+            try {
                 cmd = input.nextInt();
-                input.nextLine();         
-            }catch (InputMismatchException e){
+                input.nextLine();
+            } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a valid integer.");
-                 input.nextLine();
+                input.nextLine();
                 continue;
             }
-            
-            
-            if ((client == null || !client.getIsLogged()) && (cmd <= 0 || cmd > 4) || (client != null && client.getIsLogged() && (cmd <= 0 || cmd > 5))) {
+
+            if ((!cc.isClientLogged() && (cmd <= 0 || cmd > 5)) || (cc.isClientLogged() && (cmd <= 0 || cmd > 6))) {
                 System.out.println("Invalid command. Please try again.");
                 continue;
             }
-            
+
             switch (cmd) {
                 case 1:
-                    if (client == null || !client.getIsLogged()) {
+                    if (!cc.isClientLogged()) {
                         register();
                     } else {
                         searchHotel();
                     }
                     break;
                 case 2:
-                    if (client == null || !client.getIsLogged()) {
+                    if (!cc.isClientLogged()) {
                         login();
                     } else {
                         searchAllHotels();
                     }
                     break;
                 case 3:
-                    if (client == null || !client.getIsLogged()) {
+                    if (!cc.isClientLogged()) {
                         searchHotel();
                     } else {
-                        searchHotel();
+                        // insertReview();
                     }
                     break;
                 case 4:
-                    if (client == null || !client.getIsLogged()) {
+                    if (!cc.isClientLogged()) {
                         searchAllHotels();
                     } else {
-                        //showMyBadges();
+                        // showMyBadges();
                     }
                     break;
                 case 5:
-                    if (client != null && client.getIsLogged()) {
-                        //logout();
+                    if (cc.isClientLogged()) {
+                        logout();
+                    } else {
+                        exitApplication();
+                    }
+                    break;
+                case 6:
+                    if (cc.isClientLogged()) {
+                        exitApplication();
                     }
                     break;
                 default:
@@ -116,120 +118,94 @@ public class ClientCLI {
             }
         }
     }
-    
-     private void register() {
+
+    private void register() {
         System.out.print("-----------REGISTRATION----------\n");
-        String username = "";
-        String password = "";
+        System.out.print("0 -> Back\n");
+        System.out.print("Enter username: ");
+        String username = input.nextLine();
+        if (username.equals("0")) return;
 
-        while (username.isEmpty()) {
-            System.out.print("Enter username: ");
-            username = input.nextLine();
-            if (username.isEmpty()) {
-                System.out.println("Username cannot be empty. Please try again.");
-            }
-        }
+        System.out.print("Enter password: ");
+        String password = input.nextLine();
+        if (password.equals("0")) return;
 
-        while (password.isEmpty()) {
-            System.out.print("Enter password: ");
-            password = input.nextLine();
-            if (password.isEmpty()) {
-                System.out.println("Password cannot be empty. Please try again.");
-            }
-        }
-        
-        String result = cc.register(username, password);
-        if(!result.isEmpty()){
-            System.out.print(result + "\n");
-            System.out.print("Insert another username \n");
-            register();
-        }else{
-            System.out.print("Registration successfull \n\n\n");
+        try {
+            cc.register(username, password);
+            System.out.print("Registration successful \n\n\n");
+        } catch (Exception e) {
+            System.out.println("Registration failed: " + e.getMessage());
         }
     }
-     
-    private void searchHotel(){
+
+    private void searchHotel() {
         System.out.print("-----------SEARCH HOTEL----------\n");
-        String hotelName = "";
-        String city = "";
+        System.out.print("0 -> Back\n");
+        System.out.print("Enter Hotel Name: ");
+        String hotelName = input.nextLine();
+        if (hotelName.equals("0")) return;
 
-        while (hotelName.isEmpty()) {
-            System.out.print("Enter Hotel Name: ");
-            hotelName = input.nextLine();
-            if (hotelName.isEmpty()) {
-                System.out.println("the Hotel name cannot be empty. Please try again.");
-            }
-        }
+        System.out.print("Enter City: ");
+        String city = input.nextLine();
+        if (city.equals("0")) return;
 
-        while (city.isEmpty()) {
-            System.out.print("Enter City: ");
-            city = input.nextLine();
-            if (city.isEmpty()) {
-                System.out.println("City cannot be empty. Please try again.");
-            }
+        try {
+            Hotel hotel = cc.searchHotel(hotelName, city);
+            if (hotel != null) System.out.print(hotel.toString());
+        } catch (Exception e) {
+            System.out.println("Search hotel failed: " + e.getMessage());
         }
-        
-        Hotel hotel = cc.searchHotel(hotelName, city);
-        if(hotel != null) System.out.print(hotel.toString());
-       
-   
     }
-    
-    private void login(){
+
+    private void login() {
         System.out.print("-----------LOGIN----------\n");
-        String username = "";
-        String password = "";
+        System.out.print("0 -> Back\n");
+        System.out.print("Enter username: ");
+        String username = input.nextLine();
+        if (username.equals("0")) return;
 
-        while (username.isEmpty()) {
-            System.out.print("Enter username: ");
-            username = input.nextLine();
-            if (username.isEmpty()) {
-                System.out.println("Username cannot be empty. Please try again.");
-            }
-        }
+        System.out.print("Enter password: ");
+        String password = input.nextLine();
+        if (password.equals("0")) return;
 
-        while (password.isEmpty()) {
-            System.out.print("Enter password: ");
-            password = input.nextLine();
-            if (password.isEmpty()) {
-                System.out.println("Password cannot be empty. Please try again.");
-            }
+        try {
+            cc.login(username, password);
+            System.out.println("Login successful");
+        } catch (Exception e) {
+            System.out.println("Login failed: " + e.getMessage());
         }
-
-        Client client = cc.login(username, password);
-        if(client != null){
-            System.out.println("Login successfull");
-            this.client = client;
-        }
-        
-         
     }
 
-
-    private void searchAllHotels(){
+    private void searchAllHotels() {
         System.out.print("-----------SEARCH ALL HOTELS----------\n");
-        String city = "";
+        System.out.print("0 -> Back\n");
+        System.out.print("Enter City: ");
+        String city = input.nextLine();
+        if (city.equals("0")) return;
 
-        while (city.isEmpty()) {
-            System.out.print("Enter City: ");
-            city = input.nextLine();
-            if (city.isEmpty()) {
-                System.out.println("City cannot be empty. Please try again.");
+        try {
+            List<Hotel> hotels = cc.searchAllHotels(city);
+            if (hotels != null) {
+                for (Hotel hotel : hotels) {
+                    System.out.println(hotel.toString());
+                }
             }
+        } catch (Exception e) {
+            System.out.println("Search all hotels failed: " + e.getMessage());
         }
-
-
-        List<Hotel> hotels = cc.searchAllHotels(city);
-        if(hotels != null){
-            for (Hotel hotel : hotels) {
-                System.out.println(hotel.toString());
-            }
-        }
-
     }
-     
-     
-    
 
-    
+    private void logout() {
+        System.out.print("-----------LOGOUT----------\n");
+        cc.logout();
+        System.out.println("Logout successful");
+    }
+
+    private void exitApplication() {
+        System.out.println("Exiting application.");
+        if (input != null) {
+            input.close();
+        }
+        System.exit(0);
+    }
 }

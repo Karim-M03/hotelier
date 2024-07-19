@@ -7,16 +7,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import shared.ConfigManager;
+
 public class NetworkServer {
     
-    private static final int PORT = 9999;
     private ServerSocket serverSocket;
     private ExecutorService threadPool;
+    private final ConfigManager configManager = new ConfigManager();
+    private final int PORT = configManager.getServerPort();
+    private final int THREADS = configManager.getServerThreads();
+    private final int AWAIT_TIME = configManager.getAwaitTime();
 
     public NetworkServer() {
         try {
+            
             serverSocket = new ServerSocket(PORT);
-            threadPool = Executors.newFixedThreadPool(10);
+            threadPool = Executors.newFixedThreadPool(THREADS);
             System.out.println("Server started on port " + PORT);
         } catch (IOException e) {
             System.err.println("Could not start server on port " + PORT);
@@ -41,10 +47,10 @@ public class NetworkServer {
                 threadPool.shutdown(); // Disable new tasks from being submitted
                 try {
                     // Wait a while for existing tasks to terminate
-                    if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+                    if (!threadPool.awaitTermination(AWAIT_TIME, TimeUnit.SECONDS)) {
                         threadPool.shutdownNow(); // Cancel currently executing tasks
                         // Wait a while for tasks to respond to being cancelled
-                        if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+                        if (!threadPool.awaitTermination(AWAIT_TIME, TimeUnit.SECONDS)) {
                             System.err.println("Thread pool did not terminate");
                         }
                     }

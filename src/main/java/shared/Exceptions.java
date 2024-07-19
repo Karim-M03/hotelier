@@ -1,4 +1,4 @@
-package server;
+package shared;
 
 /**
  * Custom exception class for the server application.

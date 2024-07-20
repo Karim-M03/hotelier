@@ -90,14 +90,14 @@ public class ClientCLI {
                     if (!cc.isClientLogged()) {
                         searchHotel();
                     } else {
-                        // insertReview();
+                        insertReview();
                     }
                     break;
                 case 4:
                     if (!cc.isClientLogged()) {
                         searchAllHotels();
                     } else {
-                        // showMyBadges();
+                        showMyBadges();
                     }
                     break;
                 case 5:
@@ -193,6 +193,67 @@ public class ClientCLI {
         } catch (Exception e) {
             System.out.println("Search all hotels failed: " + e.getMessage());
         }
+    }
+
+    private int getValidInput(String prompt, int min, int max) {
+        int value;
+        while (true) {
+            System.out.print(prompt);
+            value = input.nextInt();
+            input.nextLine();  // Consuma la newline lasciata da nextInt
+            if (value == 0) return 0;
+            if (value >= min && value <= max) {
+                break;
+            } else {
+                System.out.println("Invalid input. Please enter a value between " + min + " and " + max + ".");
+            }
+        }
+        return value;
+    }
+
+    private void insertReview() {
+        System.out.print("-----------INSERT REVIEW----------\n");
+        System.out.print("0 -> Back\n");
+        System.out.print("Enter Hotel Name: ");
+        String hotelName = input.nextLine();
+        if (hotelName.equals("0")) return;
+
+        System.out.print("Enter City: ");
+        String city = input.nextLine();
+        if (city.equals("0")) return;
+
+        int rating = getValidInput("Enter General Rating (1-5): ", 1, 5);
+        if (rating == 0) return;
+
+
+        // Array delle categorie di servizi
+        String[] categories = {"Cleaning", "Position", "Services", "Quality"};
+        int[] scores = new int[categories.length];
+
+        for (int i = 0; i < categories.length; i++) {
+            scores[i] = getValidInput(categories[i] + " (1-5): ", 1, 5);
+            if (scores[i] == 0) return;
+        }
+
+        try {
+            cc.insertReview(hotelName, city, rating, scores);
+            System.out.println("Review inserted successfully");
+
+        } catch (Exception e) {
+            System.out.println("Insert review failed: " + e.getMessage());
+        }
+    }
+
+    private void showMyBadges() {
+        System.out.print("-----------MY BADGE----------\n");
+
+        try{
+            String badge = cc.showMyBadge();
+            System.out.println("Your badge is: " + badge);
+        } catch (Exception e) {
+            System.out.println("Show my badge failed: " + e.getMessage());
+        }
+        
     }
 
     private void logout() {

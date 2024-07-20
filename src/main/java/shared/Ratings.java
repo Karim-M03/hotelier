@@ -1,33 +1,19 @@
 package shared;
-
-import java.time.LocalDateTime;    
-
+   
 public class Ratings {
        
-        private int level;
-        private float general;
         private float cleaning;
         private float position;
         private float services;
         private float quality;
 
-        public Ratings(float general, float cleaning, float position, float services, float quality, int level) {
-            this.level = level;
-            this.general = general;
+        public Ratings(float cleaning, float position, float services, float quality) {
             this.cleaning = cleaning;
             this.position = position;
             this.services = services;
-            this.quality = quality;
-            
+            this.quality = quality;   
         }
 
-        public float getGeneral() {
-            return general;
-        }
-
-        public void setGeneral(float general) {
-            this.general = general;
-        }
 
         public float getCleaning() {
             return cleaning;
@@ -65,7 +51,7 @@ public class Ratings {
         @Override
         public String toString() {
             return "Ratings{" +
-                    "general=" + general +
+                  
                     "cleaning=" + cleaning +
                     ", position=" + position +
                     ", services=" + services +

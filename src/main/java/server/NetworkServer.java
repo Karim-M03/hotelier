@@ -60,7 +60,6 @@ public class NetworkServer {
                     Thread.currentThread().interrupt();
                 }
             }
-            System.out.println("Server stopped.");
         } catch (IOException e) {
             System.err.println("Error closing the server socket.");
             e.printStackTrace();

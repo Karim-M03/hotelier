@@ -59,6 +59,22 @@ public class ClientController {
         }
     }
 
+    public void insertReview(String hotelName, String city, int generalScore, int[] scores) throws Exception {
+        Response<String> response = network.insertReview(client.getUsername(), hotelName, city, generalScore, scores);
+        if(!response.isSuccess()){
+            throw new Exception(response.getResponseMessage());
+        }
+    }
+
+    public String showMyBadge() throws Exception{
+        Response<String> response = network.showMyBadge(client.getUsername());
+        if(!response.isSuccess()){
+            throw new Exception(response.getResponseMessage());
+        }else{
+            return response.getData();
+        }
+    }
+
     public void logout() {
         client = null;
     }

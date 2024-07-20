@@ -12,7 +12,15 @@ public class ServerMain {
     
     public static void main(String[] args){
         ServerController server = new ServerController();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Received SIGINT, shutting down...");
+            server.stop();  
+        }));
+        
         server.start();
+
+        
     }
     
 }

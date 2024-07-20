@@ -1,1 +1,67 @@
-[]
+[
+  {
+    "hotelId": 110,
+    "username": "Karim",
+    "general": 1,
+    "cleaning": 1,
+    "position": 1,
+    "service": 1,
+    "quality": 1,
+    "reviewDate": "Jul 20, 2024, 4:53:53 PM",
+    "badge": "RECENSORE"
+  },
+  {
+    "hotelId": 110,
+    "username": "Karim",
+    "general": 3,
+    "cleaning": 4,
+    "position": 5,
+    "service": 2,
+    "quality": 1,
+    "reviewDate": "Jul 20, 2024, 4:53:22 PM"
+  },
+  {
+    "hotelId": 110,
+    "username": "Karim",
+    "general": 4,
+    "cleaning": 4,
+    "position": 4,
+    "service": 4,
+    "quality": 4,
+    "reviewDate": "Jul 20, 2024, 5:02:41 PM",
+    "badge": "Recensore Esperto"
+  },
+  {
+    "hotelId": 110,
+    "username": "Karim",
+    "general": 1,
+    "cleaning": 2,
+    "position": 3,
+    "service": 4,
+    "quality": 5,
+    "reviewDate": "Jul 20, 2024, 5:00:50 PM",
+    "badge": "Recensore"
+  },
+  {
+    "hotelId": 110,
+    "username": "Karim",
+    "general": 4,
+    "cleaning": 4,
+    "position": 4,
+    "service": 4,
+    "quality": 4,
+    "reviewDate": "Jul 20, 2024, 5:00:30 PM",
+    "badge": "Recensore"
+  },
+  {
+    "hotelId": 110,
+    "username": "Karim",
+    "general": 3,
+    "cleaning": 3,
+    "position": 3,
+    "service": 3,
+    "quality": 3,
+    "reviewDate": "Jul 20, 2024, 4:58:54 PM",
+    "badge": "Recensore"
+  }
+]

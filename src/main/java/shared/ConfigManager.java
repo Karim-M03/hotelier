@@ -11,8 +11,15 @@ public class ConfigManager {
     public ConfigManager() {
         serverProperties = new Properties();
         clientProperties = new Properties();
-        loadProperties("./src/main/resources/configServer.properties", serverProperties);
-        loadProperties("./src/main/resources/configClient.properties", clientProperties);
+        ClassLoader classLoader = getClass().getClassLoader();
+        try {
+            serverProperties.load(classLoader.getResourceAsStream("configServer.properties"));
+            clientProperties.load(classLoader.getResourceAsStream("configClient.properties"));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
     }
 
     private void loadProperties(String fileName, Properties properties) {

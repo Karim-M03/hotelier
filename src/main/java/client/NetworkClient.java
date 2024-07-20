@@ -81,7 +81,7 @@ public class NetworkClient {
         out.println("SEARCHHOTEL|" + hotelName + "|" + city);
         String responseJson = in.readLine();
         if (responseJson == null || responseJson.isEmpty()) {
-            return new Response<>(false, 404, "No response from server or empty response.", null);
+            return new Response<>(false, 404, "No response from server", null);
         }
         Type responseType = new TypeToken<Response<Hotel>>(){}.getType();
         Response<Hotel> response = new Gson().fromJson(responseJson, responseType);
@@ -92,7 +92,7 @@ public class NetworkClient {
         out.println("LOGIN|" + username + "|" + password);
         String responseJson = in.readLine();
         if (responseJson == null || responseJson.isEmpty()) {
-            return new Response<>(false, 404, "No response from server or empty response.", null);
+            return new Response<>(false, 404, "No response from server", null);
         }
 
         Type responseType = new TypeToken<Response<Client>>(){}.getType();
@@ -104,11 +104,46 @@ public class NetworkClient {
         out.println("SEARCHALLHOTELS|" + city);
         String responseJson = in.readLine();
         if (responseJson == null || responseJson.isEmpty()) {
-            return new Response<>(false, 404, "No response from server or empty response.", null);
+            return new Response<>(false, 404, "No response from server", null);
         }
 
         Type responseType = new TypeToken<Response<List<Hotel>>>(){}.getType();
         Response<List<Hotel>> response = new Gson().fromJson(responseJson, responseType);
         return response;
     }
+
+    public Response<String> insertReview(String username, String hotelName, String city, int generalReview, int[] scores){
+        out.println("INSERTREVIEW|" + username + "|" + hotelName+"|"+city+"|"+generalReview+"|"+scores[0]+"|"+scores[1]+"|"+scores[2]+"|"+scores[3]);
+        try{
+            String responseJson = in.readLine();
+            if (responseJson == null || responseJson.isEmpty()) {
+                return new Response<String>(false, 404, "No response from server", null);
+            }
+            Type responseType = new TypeToken<Response<String>>(){}.getType();
+            Response<String> response = new Gson().fromJson(responseJson, responseType);
+
+        
+
+            return response;
+        }catch(IOException e){
+            return new Response<String>(false, 400, "Error Client Side", null);
+
+        }
+    }
+
+    public Response<String> showMyBadge(String username){
+        out.println("SHOWMYBADGE|" + username);
+        try{
+            String responseJson = in.readLine();
+            if (responseJson == null || responseJson.isEmpty()) {
+                return new Response<String>(false, 404, "No response from server", null);
+            }
+            Type responseType = new TypeToken<Response<String>>(){}.getType();
+            Response<String> response = new Gson().fromJson(responseJson, responseType);
+            return response;
+        }catch(IOException e){
+            return new Response<String>(false, 400, "Error Client Side", null);
+        }
+    }
+
 }

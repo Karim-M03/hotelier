@@ -47,6 +47,12 @@ public class ClientHandler implements Runnable {
                         case "SEARCHALLHOTELS":
                             searchAllHotels(data, out);
                             break;
+                        case "INSERTREVIEW":
+                            insertReview(data, out);
+                            break;
+                        case "SHOWMYBADGE": 
+                            showMyBadge(data, out);
+                            break;
                         
                         default:
                             out.println(new Gson().toJson(new Response<String>(false, 400, "Unknown command", null)));
@@ -113,16 +119,11 @@ public class ClientHandler implements Runnable {
             return;
         }
 
-        try {
-            Map<String, Hotel> hotels = Storage.getHotels();
-            Hotel foundHotel = hotels.get(hotelName);
-            if (foundHotel != null && foundHotel.getCity().equalsIgnoreCase(city)) {
-                out.println(new Gson().toJson(new Response<Hotel>(true, 200, "Hotel found", foundHotel)));
-            } else {
-                out.println(new Gson().toJson(new Response<String>(false, 404, "Hotel not found", null)));
-            }
-        } catch (Exceptions.StorageException e) {
-            out.println(new Gson().toJson(new Response<String>(false, 500, "Error accessing storage: " + e.getMessage(), null)));
+        Hotel foundHotel = Storage.getHotelByName(hotelName);
+        if (foundHotel != null && foundHotel.getCity().equalsIgnoreCase(city)) {
+            out.println(new Gson().toJson(new Response<Hotel>(true, 200, "Hotel found", foundHotel)));
+        } else {
+            out.println(new Gson().toJson(new Response<String>(false, 404, "Hotel not found", null)));
         }
     }
 
@@ -166,7 +167,7 @@ public class ClientHandler implements Runnable {
     private void searchAllHotels(String data, PrintWriter out) {
         try {
 
-            Map<String, Hotel> hotelMap = Storage.getHotels();
+            Map<Integer, Hotel> hotelMap = Storage.getHotels();
             List<Hotel> filteredHotels = hotelMap.values().stream()
                                             .filter(hotel -> hotel.getCity().equalsIgnoreCase(data))
                                             .collect(Collectors.toList());
@@ -182,6 +183,60 @@ public class ClientHandler implements Runnable {
             out.println(new Gson().toJson(new Response<String>(false, 500, "Error accessing storage: " + e.getMessage(), null)));
         }
     }
+
+    private void insertReview(String data, PrintWriter out) {
+        String[] parts = data.split("\\|");
+
+        if (parts.length < 8) {
+            out.println(new Gson().toJson(new Response<String>(false, 400, "Invalid review data", null)));
+            return;
+        }
+        String username = parts[0].trim();
+        String hotelName = parts[1].trim();
+        String city = parts[2].trim();
+        int generalReview = Integer.parseInt(parts[3].trim());
+        int[] scores = new int[4];
+        for (int i = 0; i < 4; i++) {
+            scores[i] = Integer.parseInt(parts[i + 4].trim());
+        }
+
+        Client user = Storage.getClient(username);
+        Hotel hotel = Storage.getHotelByName(hotelName);
+        
+        if (hotel != null && hotel.getCity().equalsIgnoreCase(city) && user != null) {
+            Review review = new Review(username, hotel.getId(), generalReview, scores, user.getBadge().getName());
+            Storage.addReview(review);
+            out.println(new Gson().toJson(new Response<String>(true, 200, "Review added for hotel: " + hotelName, null)));
+        } else if (hotel == null) {
+            out.println(new Gson().toJson(new Response<String>(false, 404, "Hotel not found", null)));
+        } else if(user == null){
+            out.println(new Gson().toJson(new Response<String>(false, 401, "Not authenticated", null)));
+        } else {
+            out.println(new Gson().toJson(new Response<String>(false, 500, "Error adding review", null)));
+        }
+       
+    }
+
+
+    private void showMyBadge(String data, PrintWriter out){
+        String[] parts = data.split("\\|");
+
+        if (parts.length < 1) {
+            out.println(new Gson().toJson(new Response<String>(false, 400, "Invalid badge data", null)));
+            return;
+        }
+
+        String username = parts[0].trim();
+
+        Client user = Storage.getClient(username);
+        if (user != null) {
+            out.println(new Gson().toJson(new Response<String>(true, 200, "Badge found", user.getBadge().getName())));
+        } else {
+            out.println(new Gson().toJson(new Response<String>(false, 401, "Not authenticated", null)));
+        }
+    }
+
+
     
 
 }

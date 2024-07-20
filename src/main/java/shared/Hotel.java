@@ -1,6 +1,7 @@
 package shared;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.List;
 
 public class Hotel {
@@ -10,10 +11,13 @@ public class Hotel {
     private String city;
     private String phone;
     private List<String> services;
-    private int rate;
+    private float rate;
     private Ratings ratings;
 
-    public Hotel(int id, String name, String description, String city, String phone, List<String> services, int rate, Ratings ratings) {
+    // Crea un'istanza di Gson con pretty printing
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    public Hotel(int id, String name, String description, String city, String phone, List<String> services, float rate, Ratings ratings) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -38,21 +42,21 @@ public class Hotel {
     public void setPhone(String phone) { this.phone = phone; }
     public List<String> getServices() { return services; }
     public void setServices(List<String> services) { this.services = services; }
-    public int getRate() { return rate; }
-    public void setRate(int rate) { this.rate = rate; }
+    public float getRate() { return rate; }
+    public void setRate(float rate) { this.rate = rate; }
     public Ratings getRatings() { return ratings; }
     public void setRatings(Ratings ratings) { this.ratings = ratings; }
 
     public static Hotel fromJson(String json) {
-        return new Gson().fromJson(json, Hotel.class);
+        return gson.fromJson(json, Hotel.class);
     }
 
     public String toJson() {
-        return new Gson().toJson(this);
+        return gson.toJson(this);
     }
 
     @Override
-     public String toString() {
+    public String toString() {
         return "Hotel Details:\n" +
                 "ID: " + id + "\n" +
                 "Name: " + name + "\n" +
@@ -67,5 +71,4 @@ public class Hotel {
                 "  Services: " + ratings.getServices() + "\n" +
                 "  Quality: " + ratings.getQuality() + "\n";
     }
-    
 }
